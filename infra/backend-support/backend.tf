@@ -1,12 +1,12 @@
-terraform {
-  backend "s3" {
-    bucket         = "news4321-terraform-infra" # replace with your bucket name
-    key            = "/" # replace with your object key
-    region         = var.region # replace with your AWS region
-    dynamodb_table = var.table_name # replace with your DynamoDB table name
-    encrypt        = true
-  }
-}
+# terraform {
+#   backend "s3" {
+#     bucket         = "news4321-terraform-infra" # replace with your bucket name
+#     key            = "/" # replace with your object key
+#     region         = var.region # replace with your AWS region
+#     dynamodb_table = var.table_name # replace with your DynamoDB table name
+#     encrypt        = true
+#   }
+# }
 
 
 # This file creates S3 bucket to hold terraform states

@@ -42,7 +42,7 @@ _%.push:
 %.push:
 	$(eval IMAGE_NAME = $(subst -,_,$*))
 	$(eval REPO_URL := $(shell cat ${ECR_URL_FILE}))
-	$$(dojo "aws ecr get-login --region eu-west-1 --no-include-email")
+	$$(dojo "aws ecr get-login --region us-east-1 --no-include-email")
 	docker tag $(IMAGE_NAME) $(REPO_URL)$(IMAGE_NAME)
 	docker push $(REPO_URL)$(IMAGE_NAME)
 
