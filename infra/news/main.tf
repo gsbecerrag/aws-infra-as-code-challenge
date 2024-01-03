@@ -1,58 +1,3 @@
-# data "aws_ssm_parameter" "vpc_id" {
-#   name = "/${var.prefix}/base/vpc_id"
-# }
-# data "aws_ssm_parameter" "subnet" {
-#   name = "/${var.prefix}/base/subnet/a/id"
-# }
-# data "aws_ssm_parameter" "ecr" {
-#   name = "/${var.prefix}/base/ecr"
-# }
-
-# locals {
-#   vpc_id = data.aws_ssm_parameter.vpc_id.value
-#   subnet_id = data.aws_ssm_parameter.subnet.value
-#   ecr_url = data.aws_ssm_parameter.ecr.value
-# }
-
-# resource "aws_security_group" "ssh_access" {
-#   vpc_id      = "${local.vpc_id}"
-#   name        = "${var.prefix}-ssh_access"
-#   description = "SSH access group"
-
-#   ingress {
-#     from_port = 22
-#     to_port = 22
-#     protocol = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   tags = {
-#     Name = "Allow HTTP"
-#     createdBy = "infra-${var.prefix}/news"
-#   }
-# }
-
-# resource "aws_key_pair" "ssh_key" {
-#   key_name   = "${var.prefix}-news"
-#   public_key = "${file("${path.module}/../id_rsa.pub")}"
-# }
-
-# data "aws_ami" "amazon_linux_2" {
-#   most_recent = true
-
-#   filter {
-#     name   = "name"
-#     values = ["amzn2-ami-hvm*"]
-#   }
-
-#   filter {
-#     name = "architecture"
-#     values = ["x86_64"]
-#   }
-
-#   owners = ["137112412989"] #amazon
-# }
-
 ### Front end
 
 resource "aws_security_group" "front_end_sg" {
@@ -128,6 +73,10 @@ resource "aws_security_group_rule" "front_end" {
 }
 ### end of front-end
 
+#############################################
+# Quotes service
+#############################################
+
 resource "aws_security_group" "quotes_sg" {
   vpc_id      = "${local.vpc_id}"
   name        = "${var.prefix}-quotes_sg"
@@ -149,6 +98,7 @@ resource "aws_security_group_rule" "quotes_all_out" {
   security_group_id = "${aws_security_group.quotes_sg.id}"
 }
 
+#############################################
 resource "aws_instance" "quotes" {
   ami           = "${data.aws_ami.amazon_linux_2.id}"
   instance_type = "${var.instance_type}"
@@ -188,6 +138,7 @@ resource "aws_instance" "quotes" {
     script = "${path.module}/provision-docker.sh"
   }
 }
+#############################################
 
 # Allow internal access to the quotes HTTP server from front-end
 resource "aws_security_group_rule" "quotes_internal_http" {
@@ -337,3 +288,135 @@ EOF
 output "frontend_url" {
   value = "http://${aws_instance.front_end.public_ip}:8080"
 }
+
+#############################################
+# Quotes service in apprunner
+#############################################
+
+# Create a role for App Runner to access ECR
+data "aws_iam_policy_document" "apprunner_policy" {
+  statement {
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type = "Service"
+      identifiers = [
+        "build.apprunner.amazonaws.com",
+        "tasks.apprunner.amazonaws.com"
+        ]
+    }
+  }
+}
+
+data "aws_iam_policy" "AWSAppRunnerServicePolicyForECRAccess" {
+  arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
+}
+
+resource "aws_iam_role" "apprunner_role" {
+  name = "apprunner_role"
+  assume_role_policy = data.aws_iam_policy_document.apprunner_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "apprunner" {
+  role       = aws_iam_role.apprunner_role.name
+  policy_arn = data.aws_iam_policy.AWSAppRunnerServicePolicyForECRAccess.arn
+}
+
+resource "app_runner_quotes_service" "quotes" {
+  service_name = "quotes"
+
+  source_configuration {
+    authentication_configuration {
+      access_role_arn = aws_iam_role.apprunner_role.arn
+    }
+    image_repository {
+      image_repository_type = "ECR"
+      image_identifier = "${local.ecr_url}quotes:latest"
+      image_configuration {
+        port = 8082
+      }
+    }
+  }
+  instance_configuration {
+    cpu = "1 vCPU"
+    memory = "2 GB"
+  }
+  create_ingress_vpc_connection = true
+  network_configuration {
+    ingress_configuration {
+      is_publicly_accessible = false
+    }
+    egress_configuration {
+      egress_type = "VPC"
+    }
+  }
+  
+  tags = {
+    Name = "quotes"
+    createdBy = "infra-${var.prefix}/news"
+  }
+}
+
+
+#############################################
+# Front End but in apprunner
+#############################################
+
+# resource "aws_apprunner_service" "news" {
+#   service_name = "news"
+#   source_configuration {
+#     authentication_configuration {
+#       access_role_arn = aws_iam_role.apprunner.arn
+#     }
+#     image_repository {
+#       image_repository_type = "ECR"
+#       image_identifier = "${local.ecr_url}front_end:latest"
+#       image_configuration {
+#         port = 8080
+#       }
+#     }
+#   }
+#   instance_configuration {
+#     cpu = "1 vCPU"
+#     memory = "2 GB"
+#   }
+#   network_configuration {
+#     egress_configuration {
+#       egress_type = "VPC"
+      
+#     }
+#     # vpc_id = local.vpc_id
+#     # public_access_enabled = true
+#     # port = 8080
+#   }
+  
+#   tags = {
+#     Name = "news"
+#     createdBy = "infra-${var.prefix}/news"
+#   }
+# }
+
+# resource "aws_apprunner_service_configuration" "news" {
+#   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration.news.arn
+#   service_arn = aws_apprunner_service.news.arn
+#   tags = {
+#     Name = "news"
+#     createdBy = "infra-${var.prefix}/news"
+#   }
+# }
+
+# resource "aws_apprunner_auto_scaling_configuration" "news" {
+#   auto_scaling_configuration_name = "news"
+#   max_concurrent_requests = 100
+#   max_concurrent_requests_per_instance = 10
+#   max_cpu = 80
+#   max_memory = 80
+#   min_cpu = 20
+#   min_memory = 20
+#   timeout_in_seconds = 60
+#   tags = {
+#     Name = "news"
+#     createdBy = "infra-${var.prefix}/news"
+#   }
+# }
