@@ -1,57 +1,57 @@
-data "aws_ssm_parameter" "vpc_id" {
-  name = "/${var.prefix}/base/vpc_id"
-}
-data "aws_ssm_parameter" "subnet" {
-  name = "/${var.prefix}/base/subnet/a/id"
-}
-data "aws_ssm_parameter" "ecr" {
-  name = "/${var.prefix}/base/ecr"
-}
+# data "aws_ssm_parameter" "vpc_id" {
+#   name = "/${var.prefix}/base/vpc_id"
+# }
+# data "aws_ssm_parameter" "subnet" {
+#   name = "/${var.prefix}/base/subnet/a/id"
+# }
+# data "aws_ssm_parameter" "ecr" {
+#   name = "/${var.prefix}/base/ecr"
+# }
 
-locals {
-  vpc_id = data.aws_ssm_parameter.vpc_id.value
-  subnet_id = data.aws_ssm_parameter.subnet.value
-  ecr_url = data.aws_ssm_parameter.ecr.value
-}
+# locals {
+#   vpc_id = data.aws_ssm_parameter.vpc_id.value
+#   subnet_id = data.aws_ssm_parameter.subnet.value
+#   ecr_url = data.aws_ssm_parameter.ecr.value
+# }
 
-resource "aws_security_group" "ssh_access" {
-  vpc_id      = "${local.vpc_id}"
-  name        = "${var.prefix}-ssh_access"
-  description = "SSH access group"
+# resource "aws_security_group" "ssh_access" {
+#   vpc_id      = "${local.vpc_id}"
+#   name        = "${var.prefix}-ssh_access"
+#   description = "SSH access group"
 
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port = 22
+#     to_port = 22
+#     protocol = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  tags = {
-    Name = "Allow HTTP"
-    createdBy = "infra-${var.prefix}/news"
-  }
-}
+#   tags = {
+#     Name = "Allow HTTP"
+#     createdBy = "infra-${var.prefix}/news"
+#   }
+# }
 
-resource "aws_key_pair" "ssh_key" {
-  key_name   = "${var.prefix}-news"
-  public_key = "${file("${path.module}/../id_rsa.pub")}"
-}
+# resource "aws_key_pair" "ssh_key" {
+#   key_name   = "${var.prefix}-news"
+#   public_key = "${file("${path.module}/../id_rsa.pub")}"
+# }
 
-data "aws_ami" "amazon_linux_2" {
-  most_recent = true
+# data "aws_ami" "amazon_linux_2" {
+#   most_recent = true
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm*"]
-  }
+#   filter {
+#     name   = "name"
+#     values = ["amzn2-ami-hvm*"]
+#   }
 
-  filter {
-    name = "architecture"
-    values = ["x86_64"]
-  }
+#   filter {
+#     name = "architecture"
+#     values = ["x86_64"]
+#   }
 
-  owners = ["137112412989"] #amazon
-}
+#   owners = ["137112412989"] #amazon
+# }
 
 ### Front end
 
