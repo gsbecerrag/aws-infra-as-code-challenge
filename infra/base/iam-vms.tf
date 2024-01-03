@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "instance-assume-role-policy" {
+data "aws_iam_policy_document" "instance_assume_role_policy" {
   statement {
     actions = ["sts:AssumeRole"]
 
