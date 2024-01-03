@@ -111,7 +111,7 @@ resource "aws_instance" "front_end" {
     private_key = "${file("${path.module}/../id_rsa")}"
   }
 
-  provisioner "remote_exec" {
+  provisioner "remote-exec" {
     script = "${path.module}/provision-docker.sh"
   }
 }
@@ -184,7 +184,7 @@ resource "aws_instance" "quotes" {
     private_key = "${file("${path.module}/../id_rsa")}"
   }
 
-  provisioner "remote_exec" {
+  provisioner "remote-exec" {
     script = "${path.module}/provision-docker.sh"
   }
 }
@@ -210,7 +210,7 @@ resource "null_resource" "quotes_provision" {
     source = "${path.module}/provision-quotes.sh"
     destination = "/home/ec2-user/provision.sh"
   }
-  provisioner "remote_exec" {
+  provisioner "remote-exec" {
     inline = [
       "chmod +x /home/ec2-user/provision.sh",
       "/home/ec2-user/provision.sh ${local.ecr_url}quotes:latest"
@@ -274,7 +274,7 @@ resource "aws_instance" "newsfeed" {
     private_key = "${file("${path.module}/../id_rsa")}"
   }
 
-  provisioner "remote_exec" {
+  provisioner "remote-exec" {
     script = "${path.module}/provision-docker.sh"
   }
 }
@@ -300,7 +300,7 @@ resource "null_resource" "newsfeed_provision" {
     source = "${path.module}/provision-newsfeed.sh"
     destination = "/home/ec2-user/provision.sh"
   }
-  provisioner "remote_exec" {
+  provisioner "remote-exec" {
     inline = [
       "chmod +x /home/ec2-user/provision.sh",
       "/home/ec2-user/provision.sh ${local.ecr_url}newsfeed:latest"
@@ -319,7 +319,7 @@ resource "null_resource" "front_end_provision" {
     source = "${path.module}/provision-front_end.sh"
     destination = "/home/ec2-user/provision.sh"
   }
-  provisioner "remote_exec" {
+  provisioner "remote-exec" {
     inline = [
       "chmod +x /home/ec2-user/provision.sh",
 <<EOF
