@@ -10,6 +10,6 @@ variable "docker_image_tag" {
 }
 variable "prefix" {
   description = "Prefix for all resources"
-  default     = "newsappruntesttf"
+  default     = "news4321"
   type        = string
 }

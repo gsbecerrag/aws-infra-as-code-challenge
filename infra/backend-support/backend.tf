@@ -1,6 +1,6 @@
 # terraform {
 #   backend "s3" {
-#     bucket         = "newsappruntesttf-terraform-infra" # replace with your bucket name
+#     bucket         = "news4321-terraform-infra" # replace with your bucket name
 #     key            = "/" # replace with your object key
 #     region         = var.region # replace with your AWS region
 #     dynamodb_table = var.table_name # replace with your DynamoDB table name
@@ -12,7 +12,7 @@
 # This file creates S3 bucket to hold terraform states
 # and DynamoDB table to keep the state locks.
 # resource "aws_s3_bucket" "terraform_infra" {
-#   bucket = "newsappruntesttf-terraform-infra"
+#   bucket = "news4321-terraform-infra"
 #   force_destroy = true
 
 #   # To allow rolling back states
@@ -30,8 +30,8 @@
 #   }
 
 #   tags = {
-#     Name = "Bucket for terraform states of newsappruntesttf"
-#     createdBy = "infra-newsappruntesttf/backend-support"
+#     Name = "Bucket for terraform states of news4321"
+#     createdBy = "infra-news4321/backend-support"
 #   }
 # }
 
@@ -52,7 +52,7 @@
 
 
 # resource "aws_dynamodb_table" "dynamodb_table" {
-#   name           = "newsappruntesttf-terraform-locks"
+#   name           = "news4321-terraform-locks"
 #   # up to 25 per account is free
 #   billing_mode   = "PROVISIONED"
 #   read_capacity  = 2
@@ -66,6 +66,6 @@
 
 #   tags = {
 #     Name = "Terraform Lock Table"
-#     createdBy = "infra-newsappruntesttf/backend-support"
+#     createdBy = "infra-news4321/backend-support"
 #   }
 # }

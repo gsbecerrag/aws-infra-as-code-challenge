@@ -16,9 +16,9 @@ resource "aws_s3_bucket" "terraform_infra" {
         }
     }
 
-    logging {
-        target_bucket = "target-bucket"
-    }
+    # logging {
+    #     target_bucket = "target-bucket"
+    # }
 }
 
 resource "aws_kms_key" "terraform_infra" {

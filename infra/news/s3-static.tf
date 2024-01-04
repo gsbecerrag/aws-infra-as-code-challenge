@@ -2,9 +2,9 @@ resource "aws_s3_bucket" "news" {
   bucket        = "${var.prefix}-terraform-infra-static-pages"
   force_destroy = true
 
-  logging {
-    target_bucket = "target-bucket"
-  }
+  # logging {
+  #   target_bucket = "target-bucket"
+  # }
 
   website {
     index_document = "index.html"
