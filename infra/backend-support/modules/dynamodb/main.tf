@@ -11,5 +11,14 @@ resource "aws_dynamodb_table" "dynamodb_table" {
         type = "S"
     }
 
+    point_in_time_recovery {
+        enabled = true
+    }
+
+    # set table encryption
+    server_side_encryption {
+        enabled = true
+    }
+
     tags = var.tags   
 }

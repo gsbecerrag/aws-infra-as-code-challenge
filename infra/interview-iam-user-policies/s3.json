@@ -40,10 +40,10 @@
                 "s3:DeleteBucketPolicy"
             ],
             "Resource": [
-                "arn:aws:s3:::news4321-terraform-infra",
-                "arn:aws:s3:::news4321-terraform-infra/*",
-                "arn:aws:s3:::news4321-terraform-infra-static-pages",
-                "arn:aws:s3:::news4321-terraform-infra-static-pages/*"
+                "arn:aws:s3:::newsappruntesttf-terraform-infra",
+                "arn:aws:s3:::newsappruntesttf-terraform-infra/*",
+                "arn:aws:s3:::newsappruntesttf-terraform-infra-static-pages",
+                "arn:aws:s3:::newsappruntesttf-terraform-infra-static-pages/*"
             ]
         }
     ]

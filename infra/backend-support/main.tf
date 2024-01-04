@@ -1,21 +1,21 @@
 module "s3" {
     source = "./modules/s3"
 
-    bucket_name = "news4321-terraform-infra"
+    bucket_name = "newsappruntesttf-terraform-infra"
     tags = {
-        Name = "Bucket for terraform states of news4321"
-        createdBy = "infra-news4321/backend-support"
+        Name = "Bucket for terraform states of newsappruntesttf"
+        createdBy = "infra-newsappruntesttf/backend-support"
     }
 }
 
 module "dynamodb" {
     source = "./modules/dynamodb"
 
-    table_name = "news4321-terraform-locks"
+    table_name = "newsappruntesttf-terraform-locks"
     read_capacity = 2
     write_capacity = 2
     tags = {
         Name = "Terraform Lock Table"
-        createdBy = "infra-news4321/backend-support"
+        createdBy = "infra-newsappruntesttf/backend-support"
     }
 }

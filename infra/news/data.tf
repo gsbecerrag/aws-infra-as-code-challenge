@@ -16,7 +16,7 @@ data "aws_ami" "amazon_linux_2" {
   }
 
   filter {
-    name = "architecture"
+    name   = "architecture"
     values = ["x86_64"]
   }
 
@@ -24,7 +24,7 @@ data "aws_ami" "amazon_linux_2" {
 }
 
 locals {
-  vpc_id = data.aws_ssm_parameter.vpc_id.value
+  vpc_id    = data.aws_ssm_parameter.vpc_id.value
   subnet_id = data.aws_ssm_parameter.subnet.value
-  ecr_url = data.aws_ssm_parameter.ecr.value
+  ecr_url   = data.aws_ssm_parameter.ecr.value
 }

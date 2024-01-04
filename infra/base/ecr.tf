@@ -1,16 +1,28 @@
 resource "aws_ecr_repository" "quotes" {
   name         = "${var.prefix}-quotes"
+  image_tag_mutability = "IMMUTABLE"
   force_delete = true
+  image_scanning_configuration {
+     scan_on_push = true
+   }
 }
 
 resource "aws_ecr_repository" "newsfeed" {
   name         = "${var.prefix}-newsfeed"
+  image_tag_mutability = "IMMUTABLE"
   force_delete = true
+  image_scanning_configuration {
+     scan_on_push = true
+   }
 }
 
 resource "aws_ecr_repository" "front_end" {
   name         = "${var.prefix}-front_end"
+  image_tag_mutability = "IMMUTABLE"
   force_delete = true
+  image_scanning_configuration {
+     scan_on_push = true
+   }
 }
 
 data "aws_caller_identity" "current" {}
