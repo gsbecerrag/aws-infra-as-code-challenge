@@ -16,7 +16,7 @@
                 "dynamodb:TagResource"
             ],
             "Resource": [
-                "arn:aws:dynamodb:*:<account_id>:table/newstftestingtwgsbg2-terraform-locks"
+                "arn:aws:dynamodb:*:<account_id>:table/newsnews4321-terraform-locks"
             ]
         }
     ]

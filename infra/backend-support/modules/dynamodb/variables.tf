@@ -1,6 +1,6 @@
 variable "table_name" {
     description = "value"
-    default = "newstftestingtwgsbg2-terraform-locks"
+    default = "newsnews4321-terraform-locks"
     type = string
 }
 
@@ -20,7 +20,7 @@ variable "tags" {
     description = "value"
     default = {
         Name = "Terraform Lock Table"
-        createdBy = "infra-newstftestingtwgsbg2/backend-support"
+        createdBy = "infra-newsnews4321/backend-support"
     }
     type = map(string)
 }

@@ -19,8 +19,8 @@
                 "iam:ListAttachedRolePolicies"
             ],
             "Resource": [
-                "arn:aws:iam::<account_id>:role/newstftestingtwgsbg2-news_host",
-                "arn:aws:iam::<account_id>:instance-profile/newstftestingtwgsbg2-news_host"
+                "arn:aws:iam::<account_id>:role/newsnews4321-news_host",
+                "arn:aws:iam::<account_id>:instance-profile/newsnews4321-news_host"
             ]
         }
     ]
