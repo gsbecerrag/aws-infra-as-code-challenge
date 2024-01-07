@@ -35,7 +35,7 @@ resource "aws_instance" "front_end" {
     volume_type           = "gp2"
     volume_size           = 8
     delete_on_termination = true
-    encrypted             = true
+    encrypted = true
   }
 
   iam_instance_profile = "${var.prefix}-news_host"
@@ -95,11 +95,11 @@ resource "aws_security_group" "quotes_sg" {
 
 # Allow all outbound connections
 resource "aws_security_group_rule" "quotes_all_out" {
-  type        = "egress"
-  to_port     = 0
-  from_port   = 0
-  protocol    = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
+  type              = "egress"
+  to_port           = 0
+  from_port         = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
   # cidr_blocks = ["181.199.58.32"]
   security_group_id = aws_security_group.quotes_sg.id
 }
@@ -119,7 +119,7 @@ resource "aws_instance" "quotes" {
     volume_type           = "gp2"
     volume_size           = 8
     delete_on_termination = true
-    encrypted             = true
+    encrypted = true
   }
 
   iam_instance_profile = "${var.prefix}-news_host"
@@ -215,7 +215,7 @@ resource "aws_instance" "newsfeed" {
     volume_type           = "gp2"
     volume_size           = 8
     delete_on_termination = true
-    encrypted             = true
+    encrypted = true
   }
 
   iam_instance_profile = "${var.prefix}-news_host"

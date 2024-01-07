@@ -21,9 +21,9 @@
                 "ecr:DeleteRepository"
             ],
             "Resource": [
-                "arn:aws:ecr:*:<account_id>:repository/newstftestingtwgsbg2-quotes",
-                "arn:aws:ecr:*:<account_id>:repository/newstftestingtwgsbg2-newsfeed",
-                "arn:aws:ecr:*:<account_id>:repository/newstftestingtwgsbg2-front_end"
+                "arn:aws:ecr:*:<account_id>:repository/news4321-quotes",
+                "arn:aws:ecr:*:<account_id>:repository/news4321-newsfeed",
+                "arn:aws:ecr:*:<account_id>:repository/news4321-front_end"
             ]
         }
     ]

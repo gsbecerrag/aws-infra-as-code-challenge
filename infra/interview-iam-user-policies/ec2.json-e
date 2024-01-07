@@ -42,7 +42,7 @@
                 "arn:aws:ec2:*:<account_id>:internet-gateway/*",
                 "arn:aws:ec2:*:<account_id>:route-table/*",
                 "arn:aws:ec2:*:<account_id>:security-group/*",
-                "arn:aws:ec2:*:<account_id>:key-pair/newstftestingtwgsbg2-news",
+                "arn:aws:ec2:*:<account_id>:key-pair/news4321-news",
                 "arn:aws:ec2:*:<account_id>:network-interface/*",
                 "arn:aws:ec2:*:<account_id>:placement-group/",
                 "arn:aws:ec2:*:<account_id>:volume/*",

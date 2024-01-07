@@ -72,19 +72,19 @@ POLICY
 }
 
 resource "aws_kms_key" "news" {
-  description             = "KMS key for news service"
-  deletion_window_in_days = 10
-  is_enabled              = true
-  enable_key_rotation     = true
+    description = "KMS key for news service"
+    deletion_window_in_days = 10
+    is_enabled = true
+    enable_key_rotation = true
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "news" {
-  bucket = aws_s3_bucket.news.id
+    bucket = aws_s3_bucket.news.id
 
-  rule {
-    apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.news.arn
-      sse_algorithm     = "aws:kms"
+    rule {
+        apply_server_side_encryption_by_default {
+            kms_master_key_id = aws_kms_key.news.arn
+            sse_algorithm     = "aws:kms"
+        }
     }
-  }
 }

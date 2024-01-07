@@ -1,5 +1,5 @@
 # #############################################
-# # Quotes service in apprunner
+# # front-end service in apprunner
 # #############################################
 
 # # Create a role for App Runner to access ECR
@@ -8,136 +8,97 @@
 # # Apprunner IAM Role
 # #############################################
 
-# variable "apprunner-service-role" {
-#     description = "This role gives App Runner permission to access ECR"
-#     default     = "quotes"
-#     type = string
-# }
+# create a role for App Runner to access ECR
+variable "apprunner_service_role" {
+  description = "This role gives App Runner permission to access ECR"
+  default     = "front-end"
+  type        = string
+}
 
-# resource "aws_iam_role" "apprunner-service-role" {
-#     name = "${var.apprunner-service-role}AppRunnerECRAccessRole"
-#     path = "/"
-#     assume_role_policy = data.aws_iam_policy_document.apprunner-service-assume-policy.json
-# }
+data "aws_iam_policy_document" "apprunner_service_assume_policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
 
-# data "aws_iam_policy_document" "apprunner-service-assume-policy" {
-#   statement {
-#     effect = "Allow"
-#     actions = ["sts:AssumeRole"]
+    principals {
+      type = "Service"
+      identifiers = [
+        "build.apprunner.amazonaws.com",
+        "tasks.apprunner.amazonaws.com"
+      ]
+    }
+  }
+}
 
-#     principals {
-#       type        = "Service"
-#       identifiers = [
-#         "build.apprunner.amazonaws.com",
-#         "tasks.apprunner.amazonaws.com"
-#         ]
-#     }
-#   }
-# }
+resource "aws_iam_role" "apprunner_service_role" {
+  name               = "${var.apprunner_service_role}AppRunnerECRAccessRole"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.apprunner_service_assume_policy.json
+}
 
-# resource "aws_iam_role_policy_attachment" "apprunner-service-role-attachment" {
-#   role       = aws_iam_role.apprunner-service-role.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
-# }
-
-# # resource "aws_iam_role" "apprunner-instance-role" {
-# #   name = "${var.apprunner-service-role}AppRunnerInstanceRole"
-# #   path = "/"
-# #   assume_role_policy = data.aws_iam_policy_document.apprunner-instance-assume-policy.json
-# # }
-
-# # resource "aws_iam_policy" "Apprunner-policy" {
-# #   name = "Apprunner-getSSM"
-# #   policy = data.aws_iam_policy_document.apprunner-instance-role-policy.json
-# # }
-
-# # resource "aws_iam_role_policy_attachment" "apprunner-instance-role-attachment" {
-# #   role = aws_iam_role.apprunner-instance-role.name
-# #   policy_arn = aws_iam_policy.Apprunner-policy.arn
-# # }
-
-# # data "aws_iam_policy_document" "apprunner-instance-assume-policy" {
-# #   statement {
-# #     actions = ["sts:AssumeRole"]
-
-# #     principals {
-# #       type = "Service"
-# #       identifiers = ["tasks.apprunner.amazonaws.com"]
-# #     }
-# #   }
-# # }
-
-# # data "aws_iam_policy_document" "apprunner-instance-role-policy" {
-# #   statement {
-# #     actions = ["ssm:GetParameter"]
-# #     effect = "Allow"
-# #     resources = ["arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter${data.aws_ssm_parameter.dbpassword.name}"]
-# #   }
-# # }
+resource "aws_iam_role_policy_attachment" "apprunner_service_role_attachment" {
+  role       = aws_iam_role.apprunner_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
+}
 
 # data "aws_caller_identity" "current" {}
 
+resource "aws_apprunner_vpc_connector" "connector" {
+  vpc_connector_name = "connector"
+  subnets            = [local.subnet_id]
+  security_groups = [
+    "${aws_security_group.front_end_sg.id}",
+    "${aws_security_group.ssh_access.id}"
+  ]
+}
 
-# # data "aws_iam_policy_document" "access_asume_role" {
-# #   statement {
-# #     actions = [
-# #       "sts:AssumeRole"
-# #     ]
-# #     principals {
-# #       type = "Service"
-# #       identifiers = [
-# #         "build.apprunner.amazonaws.com",
-# #         "tasks.apprunner.amazonaws.com"
-# #       ]
-# #     }
-# #   }
-# # }
+resource "aws_apprunner_service" "fron-end" {
+  service_name = "front-end"
 
-# # data "aws_iam_policy" "AWSAppRunnerServicePolicyForECRAccess" {
-# #   arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
-# # }
+  source_configuration {
+    authentication_configuration {
+      access_role_arn = aws_iam_role.apprunner_service_role.arn
+    }
 
-# # resource "aws_iam_role" "access" {
-# #   name               = "quotes-acces"
-# #   assume_role_policy = data.aws_iam_policy_document.access_asume_role.json
-# # }
+    auto_deployments_enabled = false
 
-# # resource "aws_iam_role_policy_attachment" "access" {
-# #   policy_arn = data.aws_iam_policy.AWSAppRunnerServicePolicyForECRAccess.arn
-# #   role       = aws_iam_role.access.name
-# # }
+    image_repository {
+      image_repository_type = "ECR"
+      image_identifier      = "${local.ecr_url}front_end:latest"
+      image_configuration {
+        port = 8080
+        runtime_environment_variables = {
+          QUOTE_SERVICE_URL      = "http://${aws_instance.quotes.private_ip}:8082"
+          NEWSFEED_SERVICE_URL   = "http://${aws_instance.newsfeed.private_ip}:8081"
+          STATIC_URL             = "http://${aws_s3_bucket.news.website_endpoint}"
+          NEWSFEED_SERVICE_TOKEN = "T1&eWbYXNWG1w1^YGKDPxAWJ@^et^&kX"
+          // add more environment variables as needed
+        }
+      }
+    }
+  }
+  instance_configuration {
+    cpu    = "1 vCPU"
+    memory = "2 GB"
+  }
 
-# resource "aws_apprunner_service" "quotes" {
-#   service_name = "quotes"
+  network_configuration {
+    ingress_configuration {
+      is_publicly_accessible = true
+    }
+    egress_configuration {
+      egress_type       = "VPC"
+      vpc_connector_arn = aws_apprunner_vpc_connector.connector.arn
+    }
+    # vpc_connector {
+    #   vpc_connector_arn = aws_vpc_connector.example.arn
+    #   security_group_ids = [aws_security_group.example.id]
+    #   subnet_ids = [aws_subnet.example.id]
+    # }
+  }
 
-#   source_configuration {
-#     authentication_configuration {
-#       access_role_arn = aws_iam_role.apprunner-service-role.arn
-#     }
-#     image_repository {
-#       image_repository_type = "ECR"
-#       image_identifier      = "${local.ecr_url}quotes:latest"
-#       image_configuration {
-#         port = 8082
-#       }
-#     }
-#   }
-#   instance_configuration {
-#     cpu    = "1 vCPU"
-#     memory = "2 GB"
-#   }
-
-#   network_configuration {
-#     # ingress_configuration {
-#     #   is_publicly_accessible = false
-#     # }
-#     # egress_configuration {
-#     #   egress_type = "VPC"
-#     # }
-#   }
-
-#   tags = {
-#     Name      = "quotes"
-#     createdBy = "infra-${var.prefix}/news"
-#   }
-# }
+  tags = {
+    Name      = "quotes"
+    createdBy = "infra-${var.prefix}/news"
+  }
+}
